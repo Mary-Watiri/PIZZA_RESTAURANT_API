@@ -13,7 +13,7 @@ migrate = Migrate(app, db)
 
 @app.route('/')
 def index():
-    return '<h1>restaurants</h1>'
+    return '<h1>RESTAURANTS</h1>'
 
 @app.route('/restaurants', methods=['GET'])
 def get_restaurants():
@@ -28,18 +28,9 @@ def get_restaurant(id):
         'name': restaurant.name,
         'address': restaurant.address,
         'pizzas': [{'id': p.id, 'name': p.name, 'ingredients': p.ingredients} for p in restaurant.pizzas]
-    })
+    }), 200
 
-@app.route('/restaurants/<int:id>', methods=['PATCH'])
-def update_restaurant(id):
-    restaurant = Restaurant.query.get_or_404(id)
-    data = request.json
-    if 'name' in data:
-        restaurant.name = data['name']
-    if 'address' in data:
-        restaurant.address = data['address']
-    db.session.commit()
-    return jsonify({'message': 'Restaurant updated successfully'}), 200
+
 
 @app.route('/restaurant_pizzas', methods=['POST'])
 def create_restaurant_pizza():
