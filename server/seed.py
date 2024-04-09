@@ -3,13 +3,23 @@ from model import Restaurant, Pizza, RestaurantPizza
 
 def seed_data():
     with app.app_context():
-        # Create Restaurants
+        # Create Restaurants with unique names
         restaurant1 = Restaurant(name='Pizza Palace', address='123 Main St')
         restaurant2 = Restaurant(name='Italian Delight', address='456 Elm St')
+        restaurant3 = Restaurant(name="My Unique Pizzeria", address="789 Maple St")
 
         # Add Restaurants to session
-        db.session.add_all([restaurant1, restaurant2])
+        db.session.add_all([restaurant1, restaurant2, restaurant3])
         db.session.commit()
+
+        # Serialize Restaurants after committing to database
+        serialized_restaurants = []
+        for restaurant in Restaurant.query.all():  
+            serialized_restaurants.append(restaurant.to_dict())
+
+        print("Serialized Restaurants:")
+        for restaurant_dict in serialized_restaurants:
+            print(restaurant_dict)
 
         # Create Pizzas
         cheese_pizza = Pizza(name='Cheese', ingredients='Dough, Tomato Sauce, Cheese')
