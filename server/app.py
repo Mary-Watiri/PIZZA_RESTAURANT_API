@@ -34,40 +34,61 @@ def get_restaurant(id):
 
 @app.route('/restaurant_pizzas', methods=['POST'])
 def create_restaurant_pizza():
-    # Get data from request body
     data = request.json
-
-    # Extract data
     price = data.get('price')
     pizza_id = data.get('pizza_id')
     restaurant_id = data.get('restaurant_id')
 
-    # Validate input data
+
     if price is None or pizza_id is None or restaurant_id is None:
         return jsonify({'errors': ['Missing required fields']}), 400
 
-    # Check if Pizza and Restaurant exist
+    
     pizza = Pizza.query.get(pizza_id)
     restaurant = Restaurant.query.get(restaurant_id)
     if pizza is None or restaurant is None:
         return jsonify({'errors': ['Pizza or Restaurant not found']}), 404
 
-    # Prepare response data
+    
     response_data = {
         'id': pizza.id,
         'name': pizza.name,
         'ingredients': pizza.ingredients
     }
 
-    # Return response
     return jsonify(response_data), 201
+
+
 
 @app.route('/restaurants/<int:id>', methods=['DELETE'])
 def delete_restaurant(id):
-    restaurant = Restaurant.query.get_or_404(id)
+    restaurant = Restaurant.query.get(id)
+    
+    if restaurant is None:
+        return jsonify({'error': 'Restaurant not found'}), 404
+    
+    RestaurantPizza.query.filter_by(restaurant_id=id).delete()
+
     db.session.delete(restaurant)
     db.session.commit()
+
     return jsonify({'message': 'Restaurant deleted successfully'}), 200
+
+@app.route('/pizzas', methods=['GET'])
+def get_pizzas():
+    pizzas = Pizza.query.all()
+    
+    pizza_list = []
+    for pizza in pizzas:
+        pizza_info = {
+            'id': pizza.id,
+            'name': pizza.name,
+            'ingredients': pizza.ingredients
+        }
+        pizza_list.append(pizza_info)
+    
+    return jsonify(pizza_list), 200
+
 
 if __name__ == '__main__':
     app.run(debug=True)
